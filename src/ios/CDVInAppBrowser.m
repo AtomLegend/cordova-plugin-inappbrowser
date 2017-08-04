@@ -571,6 +571,9 @@
 
     self.closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(close)];
     self.closeButton.enabled = YES;
+    
+    self.printButton = [[UIBarButtonItem alloc] initWithTitle:@"Print" style:UIBarButtonItemStyleDone target:self action:@selector(print)];
+    self.printButton.enabled = YES;
 
     UIBarButtonItem* flexibleSpaceButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
 
@@ -635,7 +638,7 @@
     self.backButton.enabled = YES;
     self.backButton.imageInsets = UIEdgeInsetsZero;
 
-    [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton, self.backButton, fixedSpaceButton, self.forwardButton]];
+    [self.toolbar setItems:@[self.closeButton, fixedSpaceButton, fixedSpaceButton, self.printButton,  flexibleSpaceButton, self.backButton, fixedSpaceButton, self.forwardButton]];
 
     self.view.backgroundColor = [UIColor grayColor];
     [self.view addSubview:self.toolbar];
@@ -653,7 +656,7 @@
     // the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
     // but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
     self.closeButton = nil;
-    self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleBordered target:self action:@selector(close)];
+    self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleDone target:self action:@selector(close)];
     self.closeButton.enabled = YES;
     self.closeButton.tintColor = [UIColor colorWithRed:60.0 / 255.0 green:136.0 / 255.0 blue:230.0 / 255.0 alpha:1];
 
@@ -814,6 +817,21 @@
             [[weakSelf parentViewController] dismissViewControllerAnimated:YES completion:nil];
         }
     });
+}
+
+- (void)print
+{
+    UIPrintInfo *pi = [UIPrintInfo printInfo];
+    pi.outputType = UIPrintInfoOutputGeneral;
+    pi.jobName = self.webView.request.URL.absoluteString;
+    pi.orientation = UIPrintInfoOrientationPortrait;
+    pi.duplex = UIPrintInfoDuplexLongEdge;
+    
+    UIPrintInteractionController *pic = [UIPrintInteractionController sharedPrintController];
+    pic.printInfo = pi;
+    pic.showsPageRange = YES;
+    pic.printFormatter = self.webView.viewPrintFormatter;
+    [pic presentAnimated:YES completionHandler:nil];
 }
 
 - (void)navigateTo:(NSURL*)url
